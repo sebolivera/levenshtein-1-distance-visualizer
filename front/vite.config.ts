@@ -6,7 +6,7 @@ export default defineConfig({
     plugins: [react()],
     server: {
         proxy: {
-            "/": {
+            "/lev_dist": {
                 target: "http://localhost:8000",
             },
         },

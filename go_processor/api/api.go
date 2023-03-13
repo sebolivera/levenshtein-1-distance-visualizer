@@ -26,6 +26,7 @@ func lev_dist(w http.ResponseWriter, r *http.Request) {
 
 	jsonOut, _ := json.Marshal(wbl)
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
 	fmt.Fprintln(w, string(jsonOut))
 }
 
