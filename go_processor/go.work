@@ -1,0 +1,11 @@
+go 1.20
+
+use (
+	./data_processor
+	./file_processor
+	./data_processor/utils
+	./word_mapper_recursive
+	./word_mapper_threaded
+	./word_mapper_iterative
+	./api
+)
