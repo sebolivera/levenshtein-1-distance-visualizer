@@ -39,7 +39,7 @@ export default function CustomAppBar() {
                         component="div"
                         sx={{ flexGrow: 1 }}
                     >
-                        Levenshtein-1 distance graph visualizer
+                        Levenshtein 1-Distance Visualizer
                     </Typography>
                     <Button color="inherit" sx={{ fontWeight: 600 }}>
                         Login

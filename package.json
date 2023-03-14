@@ -1,10 +1,11 @@
 {
-  "name": "letter-mapper",
+  "name": "levenshtein-1-distance-visualizer",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "install-go-dep": "cd api && go get ./...",
     "backend-dev": "cd api && go run api.go",
     "build": "tsc && vite build",
     "preview": "vite preview"
