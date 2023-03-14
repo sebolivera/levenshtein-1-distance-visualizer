@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import {
     MouseEvent as ReactMouseEvent,
+    WheelEvent,
     Dispatch,
     useEffect,
     useRef,
@@ -8,7 +9,7 @@ import {
     SetStateAction,
 } from "react";
 import axios from "../config/axios";
-import { isInCircle, isInRect, lerp } from "../utils/math";
+import { getAmplitude, isInCircle, isInRect, lerp } from "../utils/math";
 
 interface WordNode {
     x: number;
@@ -73,6 +74,8 @@ export default function Canvas(props: {
         yOffset: 0,
     });
 
+    const [zoomFactor, setZoomFactor] = useState<number>(1);
+
     useEffect(() => {
         canvasRef.current && displayNodes(wordNodes, canvasRef.current);
     }, [props.radius]);
@@ -93,8 +96,8 @@ export default function Canvas(props: {
                     let nodes: Record<string, WordNode> = {};
                     if (res.data[props.word] && canvasRef.current) {
                         nodes[props.word] = {
-                            x: canvasRef.current.width / 2,
-                            y: canvasRef.current.height / 2,
+                            x: (zoomFactor * canvasRef.current.width) / 2,
+                            y: (zoomFactor * canvasRef.current.height) / 2,
                             linkedWords: res.data[props.word],
                             isHovered: false,
                         };
@@ -104,7 +107,7 @@ export default function Canvas(props: {
                                 (i / res.data[props.word].length) * Math.PI * 2;
                             nodes[res.data[props.word][i]] = {
                                 x:
-                                    canvasRef.current.width / 2 +
+                                    (zoomFactor * canvasRef.current.width) / 2 +
                                     (lerp(
                                         20,
                                         1,
@@ -114,7 +117,8 @@ export default function Canvas(props: {
                                         angle) *
                                         Math.cos(angle),
                                 y:
-                                    canvasRef.current.height / 2 +
+                                    (zoomFactor * canvasRef.current.height) /
+                                        2 +
                                     (lerp(
                                         20,
                                         1,
@@ -133,10 +137,11 @@ export default function Canvas(props: {
                         setWordNodes({
                             "?": {
                                 x: canvasRef.current
-                                    ? canvasRef.current.width / 2
+                                    ? (zoomFactor * canvasRef.current.width) / 2
                                     : 0,
                                 y: canvasRef.current
-                                    ? canvasRef.current.height / 2
+                                    ? (zoomFactor * canvasRef.current.height) /
+                                      2
                                     : 0,
                                 linkedWords: [],
                                 isHovered: false,
@@ -145,10 +150,11 @@ export default function Canvas(props: {
                         setWordNodesInit({
                             "?": {
                                 x: canvasRef.current
-                                    ? canvasRef.current.width / 2
+                                    ? (zoomFactor * canvasRef.current.width) / 2
                                     : 0,
                                 y: canvasRef.current
-                                    ? canvasRef.current.height / 2
+                                    ? (zoomFactor * canvasRef.current.height) /
+                                      2
                                     : 0,
                                 linkedWords: [],
                                 isHovered: false,
@@ -159,16 +165,24 @@ export default function Canvas(props: {
         } else {
             setWordNodes({
                 "?": {
-                    x: canvasRef.current ? canvasRef.current.width / 2 : 0,
-                    y: canvasRef.current ? canvasRef.current.height / 2 : 0,
+                    x: canvasRef.current
+                        ? (zoomFactor * canvasRef.current.width) / 2
+                        : 0,
+                    y: canvasRef.current
+                        ? (zoomFactor * canvasRef.current.height) / 2
+                        : 0,
                     linkedWords: [],
                     isHovered: false,
                 },
             });
             setWordNodesInit({
                 "?": {
-                    x: canvasRef.current ? canvasRef.current.width / 2 : 0,
-                    y: canvasRef.current ? canvasRef.current.height / 2 : 0,
+                    x: canvasRef.current
+                        ? (zoomFactor * canvasRef.current.width) / 2
+                        : 0,
+                    y: canvasRef.current
+                        ? (zoomFactor * canvasRef.current.height) / 2
+                        : 0,
                     linkedWords: [],
                     isHovered: false,
                 },
@@ -268,6 +282,27 @@ export default function Canvas(props: {
         setWordNodes(nodes);
     };
 
+    const zoomCanvas = (
+        factor: number,
+        cursor: [number, number],
+        width: number,
+        height: number
+    ) => {
+        let nodes: Record<string, WordNode> = {};
+        for (let [word, node] of Object.entries(wordNodes)) {
+            nodes[word] = { ...node };
+            // nodes[word].x = node.x * factor + (cursor[0]-node.x) * factor;
+            // nodes[word].y = node.y * factor + (cursor[1]-node.y) * factor;
+            // nodes[word].x = (width / 2 - cursor[0])/(cursor[0]-node.x) + node.x;
+            // nodes[word].y = (height / 2 - cursor[1])/(cursor[1]-node.y) + node.y;
+            let r: number = getAmplitude([node.x, node.y], cursor);
+            let θ: number = Math.atan2(cursor[1] - node.y, cursor[0] - node.x);
+            nodes[word].x = node.x + factor * (r / width) * Math.cos(θ);
+            nodes[word].y = node.y + factor * (r / width) * Math.sin(θ);
+        }
+        setWordNodes(nodes);
+    };
+
     const highlightNodes = (cursorPos: [number, number]) => {
         let nodes: Record<string, WordNode> = {};
         for (let [word, node] of Object.entries(wordNodes)) {
@@ -282,7 +317,6 @@ export default function Canvas(props: {
     };
 
     const hightlightGUI = (cursorPos: [number, number]) => {
-        // Reset button
         setCenterCursorButtonInfo((prev) => ({
             ...prev,
             isHovered: isInRect(cursorPos, [
@@ -292,13 +326,6 @@ export default function Canvas(props: {
                 centerCursorButtonInfo.h,
             ]),
         }));
-    };
-
-    const refreshCanvas = () => {
-        if (canvasRef.current) {
-            const ctx: CanvasRenderingContext2D | null =
-                canvasRef.current.getContext("2d");
-        }
     };
 
     useEffect(() => {
@@ -341,6 +368,39 @@ export default function Canvas(props: {
         setWordNodes(wordNodesInit);
     };
 
+    const handleZoom = (e: WheelEvent<HTMLCanvasElement>) => {
+        //e.preventDefault();
+        if (canvasRef.current) {
+            const ctx = canvasRef.current.getContext("2d");
+            if (ctx) {
+                let factor: number = e.deltaY;
+                if (
+                    (zoomFactor >= 0 && factor > 0) ||
+                    (zoomFactor <= 0 && factor < 0)
+                ) {
+                    setZoomFactor(zoomFactor + factor);
+                } else {
+                    setZoomFactor(factor);
+                }
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (
+            canvasRef.current &&
+            wordNodes &&
+            Object.keys(wordNodes).length > 0
+        ) {
+            zoomCanvas(
+                zoomFactor,
+                [cursorInfo.xPos, cursorInfo.yPos],
+                canvasRef.current.width,
+                canvasRef.current.height
+            );
+        }
+    }, [zoomFactor]);
+
     return (
         <Box
             className="canvasBox"
@@ -367,6 +427,7 @@ export default function Canvas(props: {
                     onMouseOut={(e) => {
                         handleMouseUnclick(e);
                     }}
+                    onWheel={handleZoom}
                 />
             </Box>
         </Box>
