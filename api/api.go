@@ -20,14 +20,18 @@ var wordsByLength map[int][]string
 
 func lev_dist(w http.ResponseWriter, r *http.Request) {
 	word := pat.Param(r, "word")
-	wbl := make(map[string][]string)
-	wbl[word] = utils.RemoveDuplicates(wm.GetOne(word, wordsByLength))
-	dp.InsertionSort(wbl[word])
+	if len(word) < 1 {
+		fmt.Fprintln(w, "{\"\": \"\"}")
+	} else {
+		wbl := make(map[string][]string)
+		wbl[word] = utils.RemoveDuplicates(wm.GetOne(word, wordsByLength))
+		dp.InsertionSort(wbl[word])
 
-	jsonOut, _ := json.Marshal(wbl)
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
-	fmt.Fprintln(w, string(jsonOut))
+		jsonOut, _ := json.Marshal(wbl)
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		fmt.Fprintln(w, string(jsonOut))
+	}
 }
 
 func main() {

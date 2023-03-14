@@ -57,13 +57,14 @@ export default function Canvas(props: {
         test2: { x: 650, y: 250, linkedWords: ["test1"], isHovered: false },
     });
 
-    const [centerCursorButtonInfo, setCenterCursorButtonInfo] = useState<RectButton>({
-        x: 0,
-        y: 0,
-        w: 0,
-        h: 0,
-        isHovered: false,
-    });
+    const [centerCursorButtonInfo, setCenterCursorButtonInfo] =
+        useState<RectButton>({
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0,
+            isHovered: false,
+        });
 
     const [cursorInfo, setCursorInfo] = useState<CursorInfo>({
         xPos: 0,
@@ -71,14 +72,10 @@ export default function Canvas(props: {
         xOffset: 0,
         yOffset: 0,
     });
-    const [isReset, setIsReset] = useState<boolean>(false);
 
     useEffect(() => {
         canvasRef.current && displayNodes(wordNodes, canvasRef.current);
     }, [props.radius]);
-    useEffect(() => {
-        isReset && refreshCanvas();
-    }, [isReset]);
 
     useEffect(() => {
         for (let [word, node] of Object.entries(wordNodes)) {
@@ -89,49 +86,94 @@ export default function Canvas(props: {
     }, [isCanvasClicked]);
 
     useEffect(() => {
-        axios
-            .get("/lev_dist/" + props.word)
-            .then((res: Record<string, any>) => {
-                let nodes: Record<string, WordNode> = {};
-                if (res.data[props.word] && canvasRef.current) {
-                    nodes[props.word] = {
-                        x: canvasRef.current.width / 2,
-                        y: canvasRef.current.height / 2,
-                        linkedWords: res.data[props.word],
-                        isHovered: false,
-                    };
-                    let angle = 0;
-                    for (let i = 0; i < res.data[props.word].length; i++) {
-                        angle = (i / res.data[props.word].length) * Math.PI * 2;
-                        nodes[res.data[props.word][i]] = {
-                            x:
-                                canvasRef.current.width / 2 +
-                                (lerp(
-                                    20,
-                                    1,
-                                    res.data[props.word].length / 150
-                                ) *
-                                    res.data[props.word].length +
-                                    angle) *
-                                    Math.cos(angle),
-                            y:
-                                canvasRef.current.height / 2 +
-                                (lerp(
-                                    20,
-                                    1,
-                                    res.data[props.word].length / 150
-                                ) *
-                                    res.data[props.word].length +
-                                    angle) *
-                                    Math.sin(angle),
-                            linkedWords: [],
+        if (props.word && props.word.length > 0) {
+            axios
+                .get("/lev_dist/" + props.word)
+                .then((res: Record<string, any>) => {
+                    let nodes: Record<string, WordNode> = {};
+                    if (res.data[props.word] && canvasRef.current) {
+                        nodes[props.word] = {
+                            x: canvasRef.current.width / 2,
+                            y: canvasRef.current.height / 2,
+                            linkedWords: res.data[props.word],
                             isHovered: false,
                         };
+                        let angle = 0;
+                        for (let i = 0; i < res.data[props.word].length; i++) {
+                            angle =
+                                (i / res.data[props.word].length) * Math.PI * 2;
+                            nodes[res.data[props.word][i]] = {
+                                x:
+                                    canvasRef.current.width / 2 +
+                                    (lerp(
+                                        20,
+                                        1,
+                                        res.data[props.word].length / 150
+                                    ) *
+                                        res.data[props.word].length +
+                                        angle) *
+                                        Math.cos(angle),
+                                y:
+                                    canvasRef.current.height / 2 +
+                                    (lerp(
+                                        20,
+                                        1,
+                                        res.data[props.word].length / 150
+                                    ) *
+                                        res.data[props.word].length +
+                                        angle) *
+                                        Math.sin(angle),
+                                linkedWords: [],
+                                isHovered: false,
+                            };
+                        }
+                        setWordNodes(nodes);
+                        setWordNodesInit(nodes);
+                    } else {
+                        setWordNodes({
+                            "?": {
+                                x: canvasRef.current
+                                    ? canvasRef.current.width / 2
+                                    : 0,
+                                y: canvasRef.current
+                                    ? canvasRef.current.height / 2
+                                    : 0,
+                                linkedWords: [],
+                                isHovered: false,
+                            },
+                        });
+                        setWordNodesInit({
+                            "?": {
+                                x: canvasRef.current
+                                    ? canvasRef.current.width / 2
+                                    : 0,
+                                y: canvasRef.current
+                                    ? canvasRef.current.height / 2
+                                    : 0,
+                                linkedWords: [],
+                                isHovered: false,
+                            },
+                        });
                     }
-                    setWordNodes(nodes);
-                    setWordNodesInit(nodes);
-                }
+                });
+        } else {
+            setWordNodes({
+                "?": {
+                    x: canvasRef.current ? canvasRef.current.width / 2 : 0,
+                    y: canvasRef.current ? canvasRef.current.height / 2 : 0,
+                    linkedWords: [],
+                    isHovered: false,
+                },
             });
+            setWordNodesInit({
+                "?": {
+                    x: canvasRef.current ? canvasRef.current.width / 2 : 0,
+                    y: canvasRef.current ? canvasRef.current.height / 2 : 0,
+                    linkedWords: [],
+                    isHovered: false,
+                },
+            });
+        }
     }, [props.word]);
 
     useEffect(() => {

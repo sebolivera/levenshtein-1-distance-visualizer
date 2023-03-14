@@ -3,7 +3,7 @@ import { useState, ChangeEvent } from "react";
 import Canvas from "./Canvas";
 
 export default function Home() {
-    const [word, setWord] = useState<string>("Lego");
+    const [word, setWord] = useState<string>("art");
     const [radius, setRadius] = useState<number>(25);
 
     const handleWord = (
@@ -25,7 +25,7 @@ export default function Home() {
                 <TextField
                     sx={{ paddingLeft: 2 }}
                     type="text"
-                    placeholder="Any word..."
+                    placeholder="Type a word (ex: art)"
                     value={word}
                     onChange={handleWord}
                 ></TextField>

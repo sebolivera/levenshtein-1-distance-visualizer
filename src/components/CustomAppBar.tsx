@@ -7,7 +7,8 @@ import {
     IconButton,
 } from "@mui/material";
 
-import MenuIcon from '@mui/icons-material/Menu';
+import HomeIcon from "@mui/icons-material/Home";
+import { Link } from "react-router-dom";
 
 export default function CustomAppBar() {
     return (
@@ -21,16 +22,28 @@ export default function CustomAppBar() {
                         aria-label="menu"
                         sx={{ mr: 2 }}
                     >
-                        <MenuIcon />
+                        <Link
+                            to="/"
+                            style={{
+                                textDecoration: "none",
+                                color: "inherit",
+                                padding: 0,
+                                margin: 0,
+                            }}
+                        >
+                            <HomeIcon />
+                        </Link>
                     </IconButton>
                     <Typography
                         variant="h6"
                         component="div"
                         sx={{ flexGrow: 1 }}
                     >
-                        App bar or smth
+                        Levenshtein-1 distance graph visualizer
                     </Typography>
-                    <Button color="inherit" sx={{fontWeight: 600}}>Login</Button>
+                    <Button color="inherit" sx={{ fontWeight: 600 }}>
+                        Login
+                    </Button>
                 </Toolbar>
             </AppBar>
         </Box>

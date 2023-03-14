@@ -33,11 +33,11 @@ func File_processor(basePath string, args []string) []string {
 		absPath, _ = filepath.Abs(filePath)
 		readFile, err = os.Open(absPath)
 		if err == nil {
-			absPath, _ = filepath.Abs("..\\" + filePath)
+			absPath, _ = filepath.Abs(filePath)
 			readFile, err = os.Open(absPath)
 			if err != nil {
 				fmt.Println("Notice: the provided dictionary couldn't be found. Using words.txt by default.")
-				absPath, _ = filepath.Abs("../words.txt")
+				absPath, _ = filepath.Abs("..\\words.txt")
 				readFile, err = os.Open(absPath)
 			} else {
 				readFile, err = os.Open(absPath)

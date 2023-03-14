@@ -7,5 +7,5 @@ use (
 	./word_mapper_recursive
 	./word_mapper_threaded
 	./word_mapper_iterative
-	./api
+	.
 )

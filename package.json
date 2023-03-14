@@ -1,10 +1,11 @@
 {
-  "name": "front",
+  "name": "letter-mapper",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "backend-dev": "cd api && go run api.go",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
