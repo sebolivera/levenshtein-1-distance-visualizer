@@ -98,17 +98,21 @@ export default function Canvas(props: {
                         let angle = 0;
                         if (res.data[props.word].length === 1) {
                             nodes[props.word] = {
-                                x: canvasRef.current.width / 2-(props.radius*2),
+                                x:
+                                    canvasRef.current.width / 2 -
+                                    props.radius * 2,
                                 y: canvasRef.current.height / 2,
                                 linkedWords: res.data[props.word],
                                 isHovered: false,
-                            }
+                            };
                             nodes[res.data[props.word][0]] = {
-                                x: canvasRef.current.width / 2+(props.radius*2),
+                                x:
+                                    canvasRef.current.width / 2 +
+                                    props.radius * 2,
                                 y: canvasRef.current.height / 2,
                                 linkedWords: res.data[props.word],
                                 isHovered: false,
-                            }
+                            };
                         } else {
                             nodes[props.word] = {
                                 x: canvasRef.current.width / 2,
@@ -326,13 +330,17 @@ export default function Canvas(props: {
 
     const highlightNodes = (cursorPos: [number, number]) => {
         let nodes: Record<string, WordNode> = {};
+        let hasBeenHovered: boolean = false;
         for (let [word, node] of Object.entries(wordNodes)) {
             nodes[word] = { ...node };
-            nodes[word].isHovered = isInCircle(cursorPos, [
+            nodes[word].isHovered = !hasBeenHovered && isInCircle(cursorPos, [
                 node.x,
                 node.y,
                 props.radius,
             ]);
+            if (nodes[word].isHovered) {
+                hasBeenHovered = true;
+            }
         }
         setWordNodes(nodes);
     };

@@ -41,9 +41,6 @@ export default function CustomAppBar() {
                     >
                         Levenshtein 1-Distance Visualizer
                     </Typography>
-                    <Button color="inherit" sx={{ fontWeight: 600 }}>
-                        Login
-                    </Button>
                 </Toolbar>
             </AppBar>
         </Box>
