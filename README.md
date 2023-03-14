@@ -1,7 +1,11 @@
 # Levenshtein 1-Distance Visualizer
  [![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)](https://reactjs.org/) [![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![MUI](https://img.shields.io/badge/MUI-%230081CB.svg?style=for-the-badge&logo=mui&logoColor=white)](https://mui.com) [![NPM](https://img.shields.io/badge/NPM-%23CB3837.svg?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/) [![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/) [![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)](https://go.dev)
 
-## What is it?
+## Who
+
+Me.
+
+## What
 
 [Levenshtein 1-Distance](https://en.wikipedia.org/wiki/Levenshtein_distance) Visualizer is a simple app showing the immediate neighbors of any word present in the english dictionary.
 
@@ -9,7 +13,8 @@ Currently it only displays immediate neighbors for a given word, but I plan on c
 
 Made with Go so that I could get used to it.
 
-Currently, this serves no purpose other than satisfying my curiosity.
+### Why
+This serves no purpose other than satisfying my curiosity.
 
 ## Setup
 
