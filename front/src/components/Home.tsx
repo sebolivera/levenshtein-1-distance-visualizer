@@ -1,14 +1,19 @@
-import { Box, TextField, Typography } from "@mui/material";
+import { Box, TextField, Typography, Slider } from "@mui/material";
+import { useState, ChangeEvent } from "react";
 import Canvas from "./Canvas";
-import { useEffect, useState, ChangeEvent } from "react";
 
 export default function Home() {
     const [word, setWord] = useState<string>("Lego");
+    const [radius, setRadius] = useState<number>(25);
 
     const handleWord = (
         e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
     ) => {
         setWord(e.target.value);
+    };
+
+    const handleRadius = (e: Event, v: number | number[]) => {
+        setRadius(v as number);
     };
 
     return (
@@ -20,13 +25,21 @@ export default function Home() {
                 <TextField
                     sx={{ paddingLeft: 2 }}
                     type="text"
-                    placeholder="Lego"
+                    placeholder="Any word..."
                     value={word}
                     onChange={handleWord}
                 ></TextField>
+                <Slider
+                    aria-label="Radius"
+                    value={radius}
+                    min={1}
+                    max={500}
+                    onChange={handleRadius}
+                    sx={{ marginLeft: 2, width: "300px" }}
+                />
             </Box>
             <Box mb={5} flexGrow={1} display="flex">
-                <Canvas word={word} />
+                <Canvas word={word} radius={radius} setWord={setWord} />
             </Box>
         </Box>
     );
