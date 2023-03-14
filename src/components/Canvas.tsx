@@ -95,41 +95,61 @@ export default function Canvas(props: {
                 .then((res: Record<string, any>) => {
                     let nodes: Record<string, WordNode> = {};
                     if (res.data[props.word] && canvasRef.current) {
-                        nodes[props.word] = {
-                            x: (zoomFactor * canvasRef.current.width) / 2,
-                            y: (zoomFactor * canvasRef.current.height) / 2,
-                            linkedWords: res.data[props.word],
-                            isHovered: false,
-                        };
                         let angle = 0;
-                        for (let i = 0; i < res.data[props.word].length; i++) {
-                            angle =
-                                (i / res.data[props.word].length) * Math.PI * 2;
-                            nodes[res.data[props.word][i]] = {
-                                x:
-                                    (zoomFactor * canvasRef.current.width) / 2 +
-                                    (lerp(
-                                        20,
-                                        1,
-                                        res.data[props.word].length / 150
-                                    ) *
-                                        res.data[props.word].length +
-                                        angle) *
-                                        Math.cos(angle),
-                                y:
-                                    (zoomFactor * canvasRef.current.height) /
-                                        2 +
-                                    (lerp(
-                                        20,
-                                        1,
-                                        res.data[props.word].length / 150
-                                    ) *
-                                        res.data[props.word].length +
-                                        angle) *
-                                        Math.sin(angle),
-                                linkedWords: [],
+                        if (res.data[props.word].length === 1) {
+                            nodes[props.word] = {
+                                x: canvasRef.current.width / 2-(props.radius*2),
+                                y: canvasRef.current.height / 2,
+                                linkedWords: res.data[props.word],
+                                isHovered: false,
+                            }
+                            nodes[res.data[props.word][0]] = {
+                                x: canvasRef.current.width / 2+(props.radius*2),
+                                y: canvasRef.current.height / 2,
+                                linkedWords: res.data[props.word],
+                                isHovered: false,
+                            }
+                        } else {
+                            nodes[props.word] = {
+                                x: canvasRef.current.width / 2,
+                                y: canvasRef.current.height / 2,
+                                linkedWords: res.data[props.word],
                                 isHovered: false,
                             };
+                            for (
+                                let i = 0;
+                                i < res.data[props.word].length;
+                                i++
+                            ) {
+                                angle =
+                                    (i / res.data[props.word].length) *
+                                    Math.PI *
+                                    2;
+                                nodes[res.data[props.word][i]] = {
+                                    x:
+                                        canvasRef.current.width / 2 +
+                                        (lerp(
+                                            props.radius * 2,
+                                            1,
+                                            res.data[props.word].length / 25
+                                        ) *
+                                            res.data[props.word].length +
+                                            angle) *
+                                            Math.cos(angle),
+                                    y:
+                                        canvasRef.current.height / 2 +
+                                        (lerp(
+                                            props.radius * 2,
+                                            1,
+                                            res.data[props.word].length / 25
+                                        ) *
+                                            res.data[props.word].length +
+                                            angle) *
+                                            Math.sin(angle),
+                                    linkedWords: [],
+                                    isHovered: false,
+                                };
+                            }
                         }
                         setWordNodes(nodes);
                         setWordNodesInit(nodes);
@@ -137,11 +157,10 @@ export default function Canvas(props: {
                         setWordNodes({
                             "?": {
                                 x: canvasRef.current
-                                    ? (zoomFactor * canvasRef.current.width) / 2
+                                    ? canvasRef.current.width / 2
                                     : 0,
                                 y: canvasRef.current
-                                    ? (zoomFactor * canvasRef.current.height) /
-                                      2
+                                    ? canvasRef.current.height / 2
                                     : 0,
                                 linkedWords: [],
                                 isHovered: false,
@@ -150,11 +169,10 @@ export default function Canvas(props: {
                         setWordNodesInit({
                             "?": {
                                 x: canvasRef.current
-                                    ? (zoomFactor * canvasRef.current.width) / 2
+                                    ? canvasRef.current.width / 2
                                     : 0,
                                 y: canvasRef.current
-                                    ? (zoomFactor * canvasRef.current.height) /
-                                      2
+                                    ? canvasRef.current.height / 2
                                     : 0,
                                 linkedWords: [],
                                 isHovered: false,
@@ -165,24 +183,16 @@ export default function Canvas(props: {
         } else {
             setWordNodes({
                 "?": {
-                    x: canvasRef.current
-                        ? (zoomFactor * canvasRef.current.width) / 2
-                        : 0,
-                    y: canvasRef.current
-                        ? (zoomFactor * canvasRef.current.height) / 2
-                        : 0,
+                    x: canvasRef.current ? canvasRef.current.width / 2 : 0,
+                    y: canvasRef.current ? canvasRef.current.height / 2 : 0,
                     linkedWords: [],
                     isHovered: false,
                 },
             });
             setWordNodesInit({
                 "?": {
-                    x: canvasRef.current
-                        ? (zoomFactor * canvasRef.current.width) / 2
-                        : 0,
-                    y: canvasRef.current
-                        ? (zoomFactor * canvasRef.current.height) / 2
-                        : 0,
+                    x: canvasRef.current ? canvasRef.current.width / 2 : 0,
+                    y: canvasRef.current ? canvasRef.current.height / 2 : 0,
                     linkedWords: [],
                     isHovered: false,
                 },
@@ -250,6 +260,17 @@ export default function Canvas(props: {
             if (Object.keys(inputNodes).length > 0) {
                 ctx.fillStyle = "#5555DD";
                 for (let [word, node] of Object.entries(inputNodes)) {
+                    for (let subword of node.linkedWords) {
+                        if (Object.hasOwn(inputNodes, subword)) {
+                            ctx.beginPath();
+                            ctx.moveTo(node.x, node.y);
+                            ctx.lineTo(
+                                inputNodes[subword].x,
+                                inputNodes[subword].y
+                            );
+                            ctx.stroke();
+                        }
+                    }
                     ctx.beginPath();
                     ctx.arc(node.x, node.y, props.radius, 0, 2 * Math.PI);
                     node.isHovered
@@ -366,6 +387,7 @@ export default function Canvas(props: {
 
     const handleCursorCenter = () => {
         setWordNodes(wordNodesInit);
+        setZoomFactor(1);
     };
 
     const handleZoom = (e: WheelEvent<HTMLCanvasElement>) => {

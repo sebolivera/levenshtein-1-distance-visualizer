@@ -31,3 +31,4 @@ Currently, this serves no purpose other than satisfying my curiosity.
 - The recursive "threaded" version of the largest script (which is not used by the API) crashes (and improperly uses a shared map). I do not intend to work on it anymore, but left it in case anyone is curious.
 - Word orders are sorted using insertion sort instead of a more "efficient" one, the reason for that is that with given small samples, it will go fast enough for any purposes.
 - Data is only cached by Goji at the moment because I don't want to bother adding any kind of database, and I don't intend for this to be perfect anyway.
+- React is complete spaghetti: I know. I won't fix it.
