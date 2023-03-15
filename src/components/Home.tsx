@@ -8,7 +8,6 @@ import {
     useTheme,
 } from "@mui/material";
 import { useState, ChangeEvent } from "react";
-import useDimensions from "../utils/UseDimensions";
 import Canvas from "./Canvas";
 
 export default function Home() {
