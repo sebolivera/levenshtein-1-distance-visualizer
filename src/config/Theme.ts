@@ -20,14 +20,14 @@ export const darkTheme: Theme = createTheme({
             main: "#A13D63",
         },
         background: {
-            default: "#061A40",
+            default: "#010610",
         },
     },
     components: {
         MuiAppBar: {
             styleOverrides: {
                 colorPrimary: {
-                    backgroundColor: "#b5693f",
+                    backgroundColor: "#08605F",
                 },
             },
         },
@@ -66,8 +66,8 @@ export const lightTheme: Theme = createTheme({
             main: "#A13D63",
         },
         background: {
-            default: "#BFD4FC",
-            paper: "#ffffff",
+            default: "#FDFDFF",
+            paper: "#BFD4FC",
         },
     },
     typography: {

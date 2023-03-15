@@ -1,3 +1,4 @@
+import { useTheme } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import {
     MouseEvent as ReactMouseEvent,
@@ -10,6 +11,7 @@ import {
 } from "react";
 import axios from "../config/axios";
 import { getAmplitude, isInCircle, isInRect, lerp } from "../utils/math";
+import useDimensions from "../utils/UseDimensions";
 
 interface WordNode {
     x: number;
@@ -32,6 +34,11 @@ interface RectButton {
     h: number;
     isHovered: boolean;
 }
+
+const getWidth = () =>
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth;
 
 export default function Canvas(props: {
     word: string;
@@ -58,7 +65,7 @@ export default function Canvas(props: {
         },
         test2: { x: 650, y: 250, linkedWords: ["test1"], isHovered: false },
     });
-
+    const theme = useTheme();
     const [centerCursorButtonInfo, setCenterCursorButtonInfo] =
         useState<RectButton>({
             x: 0,
@@ -76,10 +83,24 @@ export default function Canvas(props: {
     });
 
     const [zoomFactor, setZoomFactor] = useState<number>(1);
+    let windowDimensions = useDimensions();
 
     useEffect(() => {
         canvasRef.current && displayNodes(wordNodes, canvasRef.current);
     }, [props.radius]);
+
+    // useEffect(() => {
+    //     if (canvasRef.current) {
+    //         console.log("Dimensions:", windowDimensions);
+    //         if (!sizeSet) {
+    //             canvasRef.current.style.width = "100%";
+    //             canvasRef.current.style.height = "100%";
+    //             canvasRef.current.width = canvasRef.current.offsetWidth;
+    //             canvasRef.current.height = canvasRef.current.offsetHeight - 20;
+    //             setSizeSet(true);
+    //         }
+    //     }
+    // }, [windowDimensions]);
 
     useEffect(() => {
         for (let [word, node] of Object.entries(wordNodes)) {
@@ -92,68 +113,79 @@ export default function Canvas(props: {
     useEffect(() => {
         if (props.word && props.word.length > 0) {
             axios
-                .get("/lev_dist/" + props.word)
+                .get("/lev_dist/" + props.word + "/" + props.repeats)
                 .then((res: Record<string, any>) => {
                     let nodes: Record<string, WordNode> = {};
-                    if (res.data[props.word] && canvasRef.current) {
+                    if (Object.keys(res.data).length > 0 && canvasRef.current) {
+                        let x = 0;
+                        let y = 0;
                         let angle = 0;
-                        if (res.data[props.word].length === 1) {
-                            nodes[props.word] = {
-                                x:
-                                    canvasRef.current.width / 2 -
-                                    props.radius * 2,
-                                y: canvasRef.current.height / 2,
-                                linkedWords: res.data[props.word],
-                                isHovered: false,
-                            };
-                            nodes[res.data[props.word][0]] = {
-                                x:
-                                    canvasRef.current.width / 2 +
-                                    props.radius * 2,
-                                y: canvasRef.current.height / 2,
-                                linkedWords: res.data[props.word],
-                                isHovered: false,
-                            };
-                        } else {
-                            nodes[props.word] = {
-                                x: canvasRef.current.width / 2,
-                                y: canvasRef.current.height / 2,
-                                linkedWords: res.data[props.word],
-                                isHovered: false,
-                            };
-                            for (
-                                let i = 0;
-                                i < res.data[props.word].length;
-                                i++
+                        for (let word in Object.keys(res.data)) {
+                            if (
+                                Object.hasOwn(res.data, word) &&
+                                res.data[word].length === 1
                             ) {
-                                angle =
-                                    (i / res.data[props.word].length) *
-                                    Math.PI *
-                                    2;
-                                nodes[res.data[props.word][i]] = {
+                                nodes[word] = {
                                     x:
-                                        canvasRef.current.width / 2 +
-                                        (lerp(
-                                            props.radius * 2,
-                                            1,
-                                            res.data[props.word].length / 25
-                                        ) *
-                                            res.data[props.word].length +
-                                            angle) *
-                                            Math.cos(angle),
-                                    y:
-                                        canvasRef.current.height / 2 +
-                                        (lerp(
-                                            props.radius * 2,
-                                            1,
-                                            res.data[props.word].length / 25
-                                        ) *
-                                            res.data[props.word].length +
-                                            angle) *
-                                            Math.sin(angle),
-                                    linkedWords: [],
+                                        x +
+                                        canvasRef.current.width / 2 -
+                                        props.radius * 2,
+                                    y: y + canvasRef.current.height / 2,
+                                    linkedWords: res.data[props.word],
                                     isHovered: false,
                                 };
+                                nodes[res.data[props.word][0]] = {
+                                    x:
+                                        x +
+                                        canvasRef.current.width / 2 +
+                                        props.radius * 2,
+                                    y: y + canvasRef.current.height / 2,
+                                    linkedWords: res.data[props.word],
+                                    isHovered: false,
+                                };
+                            } else {
+                                nodes[props.word] = {
+                                    x: x + canvasRef.current.width / 2,
+                                    y: y + canvasRef.current.height / 2,
+                                    linkedWords: res.data[props.word],
+                                    isHovered: false,
+                                };
+                                for (
+                                    let i = 0;
+                                    i < res.data[props.word].length;
+                                    i++
+                                ) {
+                                    angle =
+                                        (i / res.data[props.word].length) *
+                                        Math.PI *
+                                        2;
+                                    nodes[res.data[props.word][i]] = {
+                                        x:
+                                            x +
+                                            canvasRef.current.width / 2 +
+                                            (lerp(
+                                                props.radius * 2,
+                                                1,
+                                                res.data[props.word].length / 25
+                                            ) *
+                                                res.data[props.word].length +
+                                                angle) *
+                                                Math.cos(angle),
+                                        y:
+                                            y +
+                                            canvasRef.current.height / 2 +
+                                            (lerp(
+                                                props.radius * 2,
+                                                1,
+                                                res.data[props.word].length / 25
+                                            ) *
+                                                res.data[props.word].length +
+                                                angle) *
+                                                Math.sin(angle),
+                                        linkedWords: [],
+                                        isHovered: false,
+                                    };
+                                }
                             }
                         }
                         setWordNodes(nodes);
@@ -185,11 +217,6 @@ export default function Canvas(props: {
                         });
                     }
                 });
-            axios
-                .get("/lev_dist/" + props.word + "/" + props.repeats)
-                .then((res: Record<string, any>) => {
-                    console.log(res.data);
-                });
         } else {
             setWordNodes({
                 "?": {
@@ -208,10 +235,11 @@ export default function Canvas(props: {
                 },
             });
         }
-    }, [props]);
+    }, [props, windowDimensions]);
 
     useEffect(() => {
         if (sizeSet && canvasRef.current) {
+            console.log("Dimensions:", windowDimensions);
             setCanvasDim(canvasRef.current.getBoundingClientRect());
             setCenterCursorButtonInfo({
                 x: canvasRef.current.width - 200,
@@ -222,6 +250,10 @@ export default function Canvas(props: {
             });
         }
     }, [sizeSet]);
+
+    useEffect(() => {
+        setSizeSet(true);
+    }, [windowDimensions]);
 
     useEffect(() => {
         if (
@@ -251,12 +283,13 @@ export default function Canvas(props: {
             ctx.beginPath();
             ctx.fill();
             ctx.rect(canvas.width - 200, canvas.height - 100, 150, 75);
-            ctx.fillStyle = "#33BB55";
+            ctx.fillStyle = !centerCursorButtonInfo.isHovered
+                ? theme.palette.primary.main
+                : theme.palette.primary.light;
             ctx.fill();
             ctx.font = "bold 40px Arial";
-            ctx.fillStyle = "white";
+            ctx.fillStyle = theme.palette.primary.contrastText;
             ctx.fillText("Center", canvas.width - 190, canvas.height - 50);
-            centerCursorButtonInfo.isHovered && ctx.stroke();
         }
     };
 
@@ -268,7 +301,6 @@ export default function Canvas(props: {
         if (ctx) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (Object.keys(inputNodes).length > 0) {
-                ctx.fillStyle = "#5555DD";
                 for (let [word, node] of Object.entries(inputNodes)) {
                     for (let subword of node.linkedWords) {
                         if (Object.hasOwn(inputNodes, subword)) {
@@ -278,19 +310,21 @@ export default function Canvas(props: {
                                 inputNodes[subword].x,
                                 inputNodes[subword].y
                             );
+                            ctx.strokeStyle = theme.palette.secondary.main;
+                            ctx.lineWidth = 5;
                             ctx.stroke();
                         }
                     }
                     ctx.beginPath();
                     ctx.arc(node.x, node.y, props.radius, 0, 2 * Math.PI);
                     node.isHovered
-                        ? (ctx.fillStyle = "#44CCDD")
-                        : (ctx.fillStyle = "#55AA88");
+                        ? (ctx.fillStyle = theme.palette.info.dark)
+                        : (ctx.fillStyle = theme.palette.info.light);
 
                     ctx.fill();
                     ctx.beginPath();
                     ctx.font = `${props.radius * 0.75}px Arial`;
-                    ctx.fillStyle = "#5555DD";
+                    ctx.fillStyle = theme.palette.info.contrastText;
                     ctx.fillText(
                         word,
                         +(node.x - ctx.measureText(word).width / 2),
@@ -322,12 +356,8 @@ export default function Canvas(props: {
         let nodes: Record<string, WordNode> = {};
         for (let [word, node] of Object.entries(wordNodes)) {
             nodes[word] = { ...node };
-            // nodes[word].x = node.x * factor + (cursor[0]-node.x) * factor;
-            // nodes[word].y = node.y * factor + (cursor[1]-node.y) * factor;
-            // nodes[word].x = (width / 2 - cursor[0])/(cursor[0]-node.x) + node.x;
-            // nodes[word].y = (height / 2 - cursor[1])/(cursor[1]-node.y) + node.y;
             let r: number = getAmplitude([node.x, node.y], cursor);
-            let θ: number = Math.atan2(cursor[1] - node.y, cursor[0] - node.x);
+            let θ: number = Math.atan2(cursor[1] - node.y, cursor[0] - node.x); // I use fancy math symbols because I want to look smarter than I actually am
             nodes[word].x = node.x + factor * (r / width) * Math.cos(θ);
             nodes[word].y = node.y + factor * (r / width) * Math.sin(θ);
         }
@@ -467,6 +497,18 @@ export default function Canvas(props: {
                     }}
                     onWheel={handleZoom}
                 />
+                <Box
+                    className="CenterButtonTooltipHandler"
+                    sx={{
+                        p: 0,
+                        float: "right",
+                        mt: `${-centerCursorButtonInfo.h - 33}px`, //have to figure out where that 38 comes from...
+                        mr: "50px",
+                        height: centerCursorButtonInfo.h,
+                        width: centerCursorButtonInfo.w,
+                        // border: "1px solid yellow", //will be used to display a tooltip whenever I manage to make this work...
+                    }}
+                ></Box>
             </Box>
         </Box>
     );
