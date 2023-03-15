@@ -27,7 +27,7 @@ func File_processor(basePath string, args []string) []string {
 	var absPath string
 	var filePath string
 	dirname := basePath
-	absPath, _ = filepath.Abs(dirname + "\\..\\words.txt")
+	absPath, _ = filepath.Abs(dirname + "\\..\\english_dictionary.txt")
 	if len(args) > 1 {
 		filePath = args[1]
 		absPath, _ = filepath.Abs(filePath)
@@ -36,8 +36,8 @@ func File_processor(basePath string, args []string) []string {
 			absPath, _ = filepath.Abs(filePath)
 			readFile, err = os.Open(absPath)
 			if err != nil {
-				fmt.Println("Notice: the provided dictionary couldn't be found. Using words.txt by default.")
-				absPath, _ = filepath.Abs("..\\words.txt")
+				fmt.Println("Notice: the provided dictionary couldn't be found. Using english_dictionary.txt by default.")
+				absPath, _ = filepath.Abs("..\\english_dictionary.txt")
 				readFile, err = os.Open(absPath)
 			} else {
 				readFile, err = os.Open(absPath)
@@ -51,7 +51,7 @@ func File_processor(basePath string, args []string) []string {
 			fmt.Println("Unable to get the current fileName")
 		}
 		dirname := filepath.Dir(fileName)
-		filePath, _ = filepath.Abs(dirname + "\\..\\words.txt")
+		filePath, _ = filepath.Abs(dirname + "\\..\\english_dictionary.txt")
 		fmt.Println("Notice: no path was specified. Using " + filePath + " by default.")
 		readFile, err = os.Open(filePath)
 		return file_to_lines(readFile)

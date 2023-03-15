@@ -39,7 +39,7 @@ export default function CustomAppBar() {
                         component="div"
                         sx={{ flexGrow: 1 }}
                     >
-                        Levenshtein 1-Distance Visualizer
+                        Levenshtein Distance Visualizer
                     </Typography>
                 </Toolbar>
             </AppBar>
