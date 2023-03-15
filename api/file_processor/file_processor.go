@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 )
 
 func file_to_lines(readFile *os.File) []string {
@@ -21,41 +20,31 @@ func file_to_lines(readFile *os.File) []string {
 	return fileLines
 }
 
-func File_processor(basePath string, args []string) []string {
+func File_Processor(basePath string, fp string) []string {
 	var readFile *os.File
 	var err error
 	var absPath string
 	var filePath string
-	dirname := basePath
-	absPath, _ = filepath.Abs(dirname + "\\..\\english_dictionary.txt")
-	if len(args) > 1 {
-		filePath = args[1]
+	if len(fp) > 0 {
+		filePath = fp
 		absPath, _ = filepath.Abs(filePath)
 		readFile, err = os.Open(absPath)
 		if err == nil {
-			absPath, _ = filepath.Abs(filePath)
-			readFile, err = os.Open(absPath)
-			if err != nil {
-				fmt.Println("Notice: the provided dictionary couldn't be found. Using english_dictionary.txt by default.")
-				absPath, _ = filepath.Abs("..\\english_dictionary.txt")
-				readFile, err = os.Open(absPath)
-			} else {
-				readFile, err = os.Open(absPath)
-			}
 			return file_to_lines(readFile)
+		} else {
+			fmt.Println("Notice: the provided dictionary couldn't be found. Using english_dictionary.txt by default.")
 		}
-		panic("Something went wrong during the opening of file " + absPath)
-	} else {
-		_, fileName, _, ok := runtime.Caller(0)
-		if !ok {
-			fmt.Println("Unable to get the current fileName")
-		}
-		dirname := filepath.Dir(fileName)
-		filePath, _ = filepath.Abs(dirname + "\\..\\english_dictionary.txt")
-		fmt.Println("Notice: no path was specified. Using " + filePath + " by default.")
-		readFile, err = os.Open(filePath)
-		return file_to_lines(readFile)
 	}
+	absPath, _ = filepath.Abs("english_dictionary.txt")
+	readFile, err = os.Open(absPath)
+	if err != nil {
+		pAbsPath := absPath
+		absPath, _ = filepath.Abs("..\\english_dictionary.txt")
+		readFile, err = os.Open(absPath)
+		if err != nil {
+			panic("Neither file '" + absPath + "' nor file '" + pAbsPath + "' could be read")
+		}
+	}
+	return file_to_lines(readFile)
 
-	panic("File couldn't be read")
 }

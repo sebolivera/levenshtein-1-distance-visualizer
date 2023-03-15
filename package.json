@@ -1,5 +1,5 @@
 {
-  "name": "levenshtein-distance-visualizer",
+  "name": "levenshtein-1-distance-visualizer",
   "private": true,
   "version": "0.0.1",
   "type": "module",

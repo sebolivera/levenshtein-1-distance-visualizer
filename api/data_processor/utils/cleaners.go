@@ -1,9 +1,5 @@
 package utils
 
-import (
-	"strings"
-)
-
 func RemoveDuplicates(inputArray []string) []string {
 	finalArray := make([]string, 0)
 	for i := range inputArray {
@@ -12,10 +8,4 @@ func RemoveDuplicates(inputArray []string) []string {
 		}
 	}
 	return finalArray
-}
-
-func lowerCaseAll(inputArray []string) {
-	for i := range inputArray {
-		inputArray[i] = strings.ToLower(inputArray[i])
-	}
 }

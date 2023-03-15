@@ -37,6 +37,7 @@ export default function Canvas(props: {
     word: string;
     radius: number;
     setWord: Dispatch<SetStateAction<string>>;
+    repeats: number;
 }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [sizeSet, setSizeSet] = useState<boolean>(false);
@@ -184,6 +185,11 @@ export default function Canvas(props: {
                         });
                     }
                 });
+            axios
+                .get("/lev_dist/" + props.word + "/" + props.repeats)
+                .then((res: Record<string, any>) => {
+                    console.log(res.data);
+                });
         } else {
             setWordNodes({
                 "?": {
@@ -202,7 +208,7 @@ export default function Canvas(props: {
                 },
             });
         }
-    }, [props.word]);
+    }, [props]);
 
     useEffect(() => {
         if (sizeSet && canvasRef.current) {
@@ -233,7 +239,7 @@ export default function Canvas(props: {
                 canvasRef.current.style.width = "100%";
                 canvasRef.current.style.height = "100%";
                 canvasRef.current.width = canvasRef.current.offsetWidth;
-                canvasRef.current.height = canvasRef.current.offsetHeight - 10;
+                canvasRef.current.height = canvasRef.current.offsetHeight - 20;
                 setSizeSet(true);
             }
         }
@@ -333,11 +339,9 @@ export default function Canvas(props: {
         let hasBeenHovered: boolean = false;
         for (let [word, node] of Object.entries(wordNodes)) {
             nodes[word] = { ...node };
-            nodes[word].isHovered = !hasBeenHovered && isInCircle(cursorPos, [
-                node.x,
-                node.y,
-                props.radius,
-            ]);
+            nodes[word].isHovered =
+                !hasBeenHovered &&
+                isInCircle(cursorPos, [node.x, node.y, props.radius]);
             if (nodes[word].isHovered) {
                 hasBeenHovered = true;
             }
@@ -438,8 +442,12 @@ export default function Canvas(props: {
             flexDirection="column"
             flexGrow={1}
         >
-            <Box flex={1} sx={{ border: "1px solid red" }}>
+            <Box
+                flex={1}
+                sx={{ border: "1px solid lightgrey", borderRadius: "5px" }}
+            >
                 <canvas
+                    style={{ borderRadius: "5px" }}
                     ref={canvasRef}
                     onMouseMove={handleMouseMove}
                     onMouseDown={(e) => {

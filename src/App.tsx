@@ -3,7 +3,7 @@ import { Box } from "@mui/material";
 import CustomAppBar from "./components/CustomAppBar";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./components/Home";
-import HomeV2 from "./components/Home";
+import { ThemeProvider } from "@mui/material/styles";
 import FourOFour from "./components/FourOFour";
 
 function App() {

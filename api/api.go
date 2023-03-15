@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"path/filepath"
 	"runtime"
+	"strconv"
 
 	dp "LevenshteinDistance/data_processor"
-	utils "LevenshteinDistance/data_processor/utils"
 	fp "file_processor"
-	wm "word_mapper_iterative"
+	wm "word_mapper"
 
 	"goji.io"
 	"goji.io/pat"
@@ -24,8 +24,24 @@ func lev_dist(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "{\"\": \"\"}")
 	} else {
 		wbl := make(map[string][]string)
-		wbl[word] = utils.RemoveDuplicates(wm.GetOne(word, wordsByLength))
+		wbl[word] = wm.GetOne(word, wordsByLength)
 		dp.InsertionSort(wbl[word])
+
+		jsonOut, _ := json.Marshal(wbl)
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		fmt.Fprintln(w, string(jsonOut))
+	}
+}
+
+func lev_dist_n(w http.ResponseWriter, r *http.Request) {
+	word := pat.Param(r, "word")
+	amt := pat.Param(r, "amt")
+	n, err := strconv.Atoi(amt)
+	if len(word) < 1 || err != nil {
+		fmt.Fprintln(w, "{\"\": \"\"}")
+	} else {
+		wbl := wm.GetN(word, wordsByLength, n)
 
 		jsonOut, _ := json.Marshal(wbl)
 		w.Header().Set("Content-Type", "application/json")
@@ -41,13 +57,14 @@ func main() {
 		panic("Unable to get the current filename")
 	}
 
-	var fileLines []string = fp.File_processor(filepath.Dir(filename), make([]string, 0))
+	var fileLines []string = fp.File_Processor(filepath.Dir(filename), "")
 
 	allWords := dp.CleanArray(fileLines)
 	wordsByLength = dp.MakeMap(allWords)
 	fmt.Println("API initiated!")
 	mux := goji.NewMux()
 	mux.HandleFunc(pat.Get("/lev_dist/:word"), lev_dist)
+	mux.HandleFunc(pat.Get("/lev_dist/:word/:amt"), lev_dist_n)
 
 	http.ListenAndServe("localhost:8000", mux)
 }
