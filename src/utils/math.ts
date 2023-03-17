@@ -24,8 +24,5 @@ const isInRect = (
     );
 };
 
-const getAmplitude = (p1: [number, number], p2: [number, number]): number => {
-    return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
-};
 
-export { lerp, isInCircle, isInRect, getAmplitude };
+export { lerp, isInCircle, isInRect };
