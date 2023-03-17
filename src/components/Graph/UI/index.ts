@@ -1,8 +1,7 @@
-import { Theme, useThemeProps } from "@mui/material";
-import { isInCircle } from "../../../utils/math";
-import { rectToPolar, applyPolar } from "../logic";
+import { Theme } from "@mui/material";
+import { isInCircle } from "../../../utils/geometry";
 import { WordNode } from "../logic/types";
-import { RectButton, RectCoordinates } from "./types";
+import { RectButton } from "./types";
 
 const drawGUI = (
     canvas: HTMLCanvasElement,
@@ -73,34 +72,20 @@ const drawNodes = (
     const ctx = canvas.getContext("2d");
     if (ctx) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let node of Object.values(inputNodes)) {
+            for (let subword of node.linkedWords) {
+                if (Object.hasOwn(inputNodes, subword)) {
+                    ctx.beginPath();
+                    ctx.moveTo(node.x, node.y);
+                    ctx.lineTo(inputNodes[subword].x, inputNodes[subword].y);
+                    ctx.strokeStyle = theme.palette.secondary.main;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+            }
+        }
         if (Object.keys(inputNodes).length > 0) {
             for (let [word, node] of Object.entries(inputNodes)) {
-                let nodeC: RectCoordinates = { x: node.x, y: node.y };
-                for (let subword of node.linkedWords) {
-                    if (Object.hasOwn(inputNodes, subword) && subword!==word) {
-                        //WARNING: not entirely sure what the following code does, but it works. Yes, I made it all by myself. No, I still don't know why it works.
-                        //TODO: check whether this works for large amounts of nodes
-                        ctx.beginPath();
-                        let currentNodeC: RectCoordinates = {
-                            x: inputNodes[subword].x,
-                            y: inputNodes[subword].y,
-                        };
-                        let { θ, r } = rectToPolar(nodeC, currentNodeC);
-                        let newC: RectCoordinates = applyPolar(currentNodeC, {
-                            θ,
-                            r:radius-r,
-                        });
-                        let newDest: RectCoordinates = applyPolar(
-                            nodeC,
-                            { θ, r:r-radius }
-                        );
-                        ctx.moveTo(newC.x, newC.y);
-                        ctx.lineTo(newDest.x, newDest.y);
-                        ctx.strokeStyle = theme.palette.secondary.main;
-                        ctx.lineWidth = 5;
-                        ctx.stroke();
-                    }
-                }
                 ctx.beginPath();
                 ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI);
                 node.isHovered

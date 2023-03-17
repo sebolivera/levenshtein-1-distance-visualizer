@@ -11,9 +11,9 @@ import { useState, ChangeEvent } from "react";
 import Canvas from "./Canvas";
 
 export default function Home() {
-    const [word, setWord] = useState<string>("art");
+    const [word, setWord] = useState<string>("arti");
     const [radius, setRadius] = useState<number>(25);
-    const [repeats, setRepeats] = useState<number>(2); //limited to 3 max, as the retrieval algorithm is *REALLY* slow and unoptimized at the moment.
+    const [repeats, setRepeats] = useState<number>(1); //limited to 3 max, as the retrieval algorithm is *REALLY* slow and unoptimized at the moment.
     const theme = useTheme();
     const handleWord = (
         e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>

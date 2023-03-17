@@ -6,14 +6,5 @@ interface RectButton {
     isHovered: boolean;
 }
 
-interface PolarCoordinates {
-    θ: number,
-    r: number,
-};
 
-interface RectCoordinates {
-    x: number,
-    y: number,
-}
-
-export type { RectButton, RectCoordinates, PolarCoordinates };
+export type { RectButton };

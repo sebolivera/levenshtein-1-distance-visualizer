@@ -10,11 +10,16 @@ import {
     SetStateAction,
 } from "react";
 import axios from "../config/axios";
-import { isInRect } from "../utils/math";
+import { isInRect } from "../utils/geometry";
 import useDimensions from "../utils/useDimensions";
 import { WordNode, CursorInfo } from "./Graph/logic/types";
 import { RectButton } from "./Graph/UI/types";
-import { createSubNode, zoomNodes } from "./Graph/logic";
+import {
+    createSubNode,
+    getMaxNodeWeight,
+    roughlyDistributeNodes,
+    zoomNodes,
+} from "./Graph/logic";
 import { drawNodes, dragCanvas, highlightNodes, zoomCanvas } from "./Graph/UI";
 
 export default function Canvas(props: {
@@ -57,6 +62,7 @@ export default function Canvas(props: {
     });
 
     const [zoomFactor, setZoomFactor] = useState<number>(1);
+    const [maxNodeWeight, setMaxNodeWeight] = useState<number>();
     let windowDimensions = useDimensions();
 
     //handlers
@@ -117,39 +123,63 @@ export default function Canvas(props: {
                 .get("/lev_dist/" + props.word + "/" + props.repeats)
                 .then((res: Record<string, any>) => {
                     if (canvasRef.current) {
+                        let center: [number, number] = Object.hasOwn(
+                            wordNodes,
+                            props.word
+                        )
+                            ? [wordNodes[props.word].x, wordNodes[props.word].y]
+                            : [
+                                  canvasRef.current.width / 2,
+                                  canvasRef.current.height / 2,
+                              ];
                         let nodes: Record<string, WordNode> = {
                             [props.word]: {
-                                x: canvasRef.current.width / 2,
-                                y: canvasRef.current.height / 2,
-                                linkedWords: Object.keys(res.data),
+                                x: center[0],
+                                y: center[1],
+                                linkedWords: res.data[props.word],
                                 isHovered: false,
                             },
                         };
                         if (Object.keys(res.data).length > 0) {
                             for (let word of Object.keys(res.data)) {
                                 //generates the immediate nodes found
-                                nodes[word] = {
-                                    x: 0,
-                                    y: 0,
-                                    linkedWords: res.data[word],
-                                    isHovered: false,
-                                };
+                                if (word !== props.word) {
+                                    nodes[word] = {
+                                        x: 0,
+                                        y: 0,
+                                        linkedWords: res.data[word],
+                                        isHovered: false,
+                                    };
+                                }
                             }
-
                             for (let [word, node] of Object.entries(nodes)) {
                                 //gets the "end" nodes, I.e. the words that were at the very end of the given number for the levenshtein distance
                                 for (let subWord of node.linkedWords) {
-                                    createSubNode(subWord, word, res.data);
+                                    if (!Object.hasOwn(nodes, subWord)) {
+                                        nodes[subWord] = createSubNode(
+                                            subWord,
+                                            word,
+                                            res.data
+                                        );
+                                    }
                                 }
                             }
-                            console.log("Nodes done!", nodes);
-                            // setWordNodes(nodes);
-                            // setWordNodesInit(nodes);
+                            setWordNodesInit(
+                                roughlyDistributeNodes(
+                                    nodes,
+                                    props.word,
+                                    props.radius
+                                )
+                            );
                         }
                     }
                 });
         }
     }, [props, windowDimensions]);
+
+    useEffect(() => {
+        setWordNodes(wordNodesInit);
+    }, [wordNodesInit]);
 
     useEffect(() => {
         if (sizeSet && canvasRef.current) {
@@ -169,10 +199,18 @@ export default function Canvas(props: {
     }, [windowDimensions]);
 
     useEffect(() => {
+        if (wordNodes && Object.keys(wordNodes).length > 0) {
+            setMaxNodeWeight(getMaxNodeWeight(wordNodes));
+        }
+    }, [wordNodes]);
+
+    useEffect(() => {
         if (
             canvasRef.current &&
             wordNodes &&
-            Object.keys(wordNodes).length > 0
+            Object.keys(wordNodes).length > 0 &&
+            maxNodeWeight &&
+            maxNodeWeight !== 0
         ) {
             drawNodes(
                 wordNodes,
@@ -182,7 +220,7 @@ export default function Canvas(props: {
                 props.radius
             );
         }
-    }, [wordNodes, props.radius, theme]);
+    }, [wordNodes, props.radius, theme, maxNodeWeight]);
 
     useEffect(() => {
         if (canvasRef.current) {
