@@ -41,8 +41,10 @@ These are basically just duplicates of the Issues tab, but this isn't a real pro
 |Go packages misuse|Go package structure isn't made for what I did, I know. I just ordered it that way so that it would be familiar visual while I learn the language.|`Might fix it`|
 |Use of insertion sort|Returned list is sorted using insertion sort instead of more "performant" sorting algorithms.|`Won't change it` It works well enough for the supplied samples.|
 |Data management|Data is currently cached by Go and only supports the english dictionary in the english_dictionary.txt file.|`Unknown`|
-|React Spaghetti| The React front-end is a mess | `I know`|
-|Data Improvement| Add definitions/synonyms, or even source the data from a live dictionary API?|`Maybe`|
+|React Spaghetti|The React front-end is a mess | `I know`|
+|Data Improvement|Add definitions/synonyms, or even source the data from a live dictionary API?|`Maybe`|
+|Backend performance|The algorithm that grabs the neighbors for a given word is not optimized at all.|`Will fix, when the rest of the app is done.`|
+|Bad implementation of the node distribution|The nodes are generated in front-end JS, which is immensly unpotimised.|`Will fix it sometime in the future`|
 
 
 > *You shall use tables for everything, for they are as me, and as I embody perfection, so do they.*
@@ -51,4 +53,4 @@ These are basically just duplicates of the Issues tab, but this isn't a real pro
 > \
 > *Also they look more professional*.
 
-\- God, soon after inventing KANBAN, probably.
+\- God, soon after inventing KANBAN <sup>(probably)</sup>.
