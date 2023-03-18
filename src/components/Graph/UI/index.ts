@@ -1,4 +1,4 @@
-import { Theme } from "@mui/material";
+import { Theme } from "@mui/material/styles";
 import { isInCircle } from "../../../utils/geometry";
 import { WordNode } from "../logic/types";
 import { RectButton } from "./types";
@@ -88,9 +88,9 @@ const drawNodes = (
             for (let [word, node] of Object.entries(inputNodes)) {
                 ctx.beginPath();
                 ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI);
-                node.isHovered
-                    ? (ctx.fillStyle = theme.palette.info.dark)
-                    : (ctx.fillStyle = theme.palette.info.light);
+                ctx.fillStyle =node.isHovered
+                    ? (ctx.fillStyle = theme.palette.secondary.light)
+                    : node.color;
 
                 ctx.fill();
                 ctx.beginPath();

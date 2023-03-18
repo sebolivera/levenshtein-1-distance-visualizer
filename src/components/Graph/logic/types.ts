@@ -3,7 +3,7 @@ interface WordNode {
     y: number;
     linkedWords: Array<string>;
     isHovered: boolean;
-    weight?:number,//*should* correspond to how many nodes are linked to it. Not exactly sure how that helps.
+    color:string;
 }
 
 interface CursorInfo {

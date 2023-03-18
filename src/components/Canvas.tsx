@@ -1,5 +1,5 @@
 import { useTheme } from "@mui/material/styles";
-import { Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import {
     MouseEvent as ReactMouseEvent,
     WheelEvent,
@@ -21,6 +21,7 @@ import {
     zoomNodes,
 } from "./Graph/logic";
 import { drawNodes, dragCanvas, highlightNodes, zoomCanvas } from "./Graph/UI";
+import Backdrop from "@mui/material/Backdrop";
 
 export default function Canvas(props: {
     word: string;
@@ -32,16 +33,7 @@ export default function Canvas(props: {
     const [sizeSet, setSizeSet] = useState<boolean>(false);
     const [canvasDim, setCanvasDim] = useState<DOMRect>();
     const [isCanvasClicked, setIsCanvasClicked] = useState<boolean>(false);
-    const [wordNodes, setWordNodes] = useState<Record<string, WordNode>>({
-        test: { x: 350, y: 350, linkedWords: ["test1"], isHovered: false },
-        test1: {
-            x: 550,
-            y: 550,
-            linkedWords: ["test1", "test12"],
-            isHovered: false,
-        },
-        test2: { x: 650, y: 250, linkedWords: ["test1"], isHovered: false },
-    });
+    const [wordNodes, setWordNodes] = useState<Record<string, WordNode>>({});
     const [wordNodesInit, setWordNodesInit] =
         useState<Record<string, WordNode>>(wordNodes);
     const theme = useTheme();
@@ -53,7 +45,7 @@ export default function Canvas(props: {
             h: 0,
             isHovered: false,
         });
-
+    const [loading, setLoading] = useState<boolean>(true);
     const [cursorInfo, setCursorInfo] = useState<CursorInfo>({
         xPos: 0,
         yPos: 0,
@@ -118,6 +110,7 @@ export default function Canvas(props: {
     }, [isCanvasClicked]);
 
     useEffect(() => {
+        setLoading(true);
         if (props.word && props.word.length > 0) {
             axios
                 .get("/lev_dist/" + props.word + "/" + props.repeats)
@@ -138,6 +131,7 @@ export default function Canvas(props: {
                                 y: center[1],
                                 linkedWords: res.data[props.word],
                                 isHovered: false,
+                                color: theme.palette.error.main,
                             },
                         };
                         if (Object.keys(res.data).length > 0) {
@@ -149,6 +143,7 @@ export default function Canvas(props: {
                                         y: 0,
                                         linkedWords: res.data[word],
                                         isHovered: false,
+                                        color: theme.palette.warning.main,
                                     };
                                 }
                             }
@@ -159,7 +154,8 @@ export default function Canvas(props: {
                                         nodes[subWord] = createSubNode(
                                             subWord,
                                             word,
-                                            res.data
+                                            res.data,
+                                            theme
                                         );
                                     }
                                 }
@@ -201,6 +197,7 @@ export default function Canvas(props: {
     useEffect(() => {
         if (wordNodes && Object.keys(wordNodes).length > 0) {
             setMaxNodeWeight(getMaxNodeWeight(wordNodes));
+            setLoading(false);
         }
     }, [wordNodes]);
 
@@ -295,6 +292,9 @@ export default function Canvas(props: {
                 flex={1}
                 sx={{ border: "1px solid lightgrey", borderRadius: "5px" }}
             >
+                <Backdrop open={loading}>
+                    <CircularProgress color="inherit" />
+                </Backdrop>
                 <canvas
                     style={{ borderRadius: "5px" }}
                     ref={canvasRef}

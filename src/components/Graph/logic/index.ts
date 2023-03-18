@@ -1,3 +1,4 @@
+import { Theme } from "@mui/material/styles";
 import { applyPolar, rectToPolar } from "../../../utils/geometry";
 import { WordNode } from "./types";
 
@@ -167,7 +168,8 @@ const redistributeNodes = (
 const createSubNode = (
     word: string,
     baseWord: string,
-    rawNodes: Record<string, any>
+    rawNodes: Record<string, any>,
+    theme: Theme
 ): WordNode => {
     let node: WordNode = {
         x: 0,
@@ -176,6 +178,7 @@ const createSubNode = (
             ...(Object.hasOwn(rawNodes, word) ? rawNodes[word] : [word]),
         ],
         isHovered: false,
+        color: theme.palette.warning.main,
     };
     if (!node.linkedWords.includes(baseWord)) {
         node.linkedWords.push(baseWord);

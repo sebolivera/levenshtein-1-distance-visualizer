@@ -12,7 +12,7 @@ import Canvas from "./Canvas";
 
 export default function Home() {
     const [word, setWord] = useState<string>("arti");
-    const [radius, setRadius] = useState<number>(25);
+    const [radius, setRadius] = useState<number>(20);
     const [repeats, setRepeats] = useState<number>(1); //limited to 3 max, as the retrieval algorithm is *REALLY* slow and unoptimized at the moment.
     const theme = useTheme();
     const handleWord = (
@@ -116,7 +116,7 @@ export default function Home() {
                             sx={{ paddingBottom: 1 }}
                             id="distance-label"
                         >
-                            Folds
+                            Folds (max 2)
                         </Typography>
                         <Input
                             value={repeats}
@@ -126,7 +126,7 @@ export default function Home() {
                             inputProps={{
                                 step: 1,
                                 min: 1,
-                                max: 3,
+                                max: 2,
                                 type: "number",
                                 "aria-labelledby": "distance-labe",
                             }}
